@@ -1,134 +1,115 @@
+import { useState } from "react";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
-import React, { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+import { buttonVariants } from "./ui/button";
+import { Menu } from "lucide-react";
 
-const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+interface RouteProps {
+  href: string;
+  label: string;
+}
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+const routeList: RouteProps[] = [
+  {
+    href: "#vision",
+    label: "About Us",
+  },
+  {
+    href: "#courses",
+    label: "Courses",
+  },
+  {
+    href: "#process",
+    label: "Admission",
+  },
+  {
+    href: "#contact",
+    label: "Contact",
+  },
+];
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-    // Prevent background scrolling when menu is open
-    document.body.style.overflow = !isMenuOpen ? 'hidden' : '';
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-    
-    // Close mobile menu if open
-    if (isMenuOpen) {
-      setIsMenuOpen(false);
-      document.body.style.overflow = '';
-    }
-  };
-
+export const Navbar = () => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   return (
-    <header
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 py-2 sm:py-3 md:py-4 transition-all duration-300",
-        isScrolled 
-          ? "bg-white/80 backdrop-blur-md shadow-sm" 
-          : "bg-transparent"
-      )}
-    >
-      <div className="container flex items-center justify-between px-4 sm:px-6 lg:px-8">
-        <a 
-          href="#" 
-          className="flex items-center space-x-2"
-          onClick={(e) => {
-            e.preventDefault();
-            scrollToTop();
-          }}
-          aria-label="Pulse Robot"
-        >
-          <img 
-            src="/logo.svg" 
-            alt="Pulse Robot Logo" 
-            className="h-7 sm:h-8" 
-          />
-        </a>
+    <header className="shadow-sm_dark sticky border-b-[1px] top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <NavigationMenu className="mx-auto">
+        <NavigationMenuList className="container h-14 px-4 w-screen flex justify-between ">
+          <NavigationMenuItem className="font-bold flex">
+            <a
+              rel="noreferrer noopener"
+              href="/"
+              className="ml-2 font-bold text-xl flex"
+            >
+              Skilltrai
+            </a>
+          </NavigationMenuItem>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-8">
-          <a 
-            href="#" 
-            className="nav-link"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToTop();
-            }}
-          >
-            Home
-          </a>
-          <a href="#features" className="nav-link">About</a>
-          <a href="#details" className="nav-link">Contact</a>
-        </nav>
+          {/* mobile */}
+          <span className="flex md:hidden">
+            <Sheet
+              open={isOpen}
+              onOpenChange={setIsOpen}
+            >
+              <SheetTrigger className="px-2">
+                <Menu
+                  className="flex md:hidden h-5 w-5"
+                  onClick={() => setIsOpen(true)}
+                >
+                </Menu>
+              </SheetTrigger>
 
-        {/* Mobile menu button - increased touch target */}
-        <button 
-          className="md:hidden text-gray-700 p-3 focus:outline-none" 
-          onClick={toggleMenu}
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
+              <SheetContent side={"left"}>
+                <SheetHeader>
+                  <SheetTitle className="font-bold text-xl">
+                    Skilltrai
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col justify-center items-center gap-2 mt-4">
+                  {routeList.map(({ href, label }: RouteProps) => (
+                    <a
+                      rel="noreferrer noopener"
+                      key={label}
+                      href={href}
+                      onClick={() => setIsOpen(false)}
+                      className={buttonVariants({ variant: "ghost" })}
+                    >
+                      {label}
+                    </a>
+                  ))}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </span>
 
-      {/* Mobile Navigation - improved for better touch experience */}
-      <div className={cn(
-        "fixed inset-0 z-40 bg-white flex flex-col pt-16 px-6 md:hidden transition-all duration-300 ease-in-out",
-        isMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"
-      )}>
-        <nav className="flex flex-col space-y-8 items-center mt-8">
-          <a 
-            href="#" 
-            className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" 
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToTop();
-              setIsMenuOpen(false);
-              document.body.style.overflow = '';
-            }}
-          >
-            Home
-          </a>
-          <a 
-            href="#features" 
-            className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" 
-            onClick={() => {
-              setIsMenuOpen(false);
-              document.body.style.overflow = '';
-            }}
-          >
-            About
-          </a>
-          <a 
-            href="#details" 
-            className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" 
-            onClick={() => {
-              setIsMenuOpen(false);
-              document.body.style.overflow = '';
-            }}
-          >
-            Contact
-          </a>
-        </nav>
-      </div>
+          {/* desktop */}
+          <nav className="hidden md:flex gap-2">
+            {routeList.map((route: RouteProps, i) => (
+              <a
+                rel="noreferrer noopener"
+                href={route.href}
+                key={i}
+                className={`text-[17px] ${buttonVariants({
+                  variant: "ghost",
+                })}`}
+              >
+                {route.label}
+              </a>
+            ))}
+          </nav>
+
+        </NavigationMenuList>
+      </NavigationMenu>
     </header>
   );
 };
-
-export default Navbar;
